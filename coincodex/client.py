@@ -2,7 +2,7 @@ from sys import exception
 from requests import Request, Session
 import json
 
-from exceptions import (
+from coincodex.exceptions import (
     CoincodexAPIBadRequestException,
     CoincodexAPIException,
     CoincodexAPIForbiddenException,
@@ -59,20 +59,22 @@ class Client():
         return self._request(method, uri, **kwargs)
 
     def _handle_response(self, response):
-        if response.status_code == 400:
-            raise CoincodexAPIBadRequestException(response)
-        if response.status_code == 402:
-            raise CoincodexAPIPaymentRequiredException(response)
-        if response.status_code == 403:
-            raise CoincodexAPIForbiddenException(response)
-        if response.status_code == 404:
-            raise CoincodexAPINotFoundException(response)
-        if response.status_code == 429:
-            raise CoincodexAPITooManyRequestsException(response)
-        if response.status_code == 500:
-            raise CoincodexAPIInternalServerErrorException(response)
-        if not str(response.status_code).startswith("2"):
-            raise CoincodexAPIException(response)
+        match response.status_code:
+            case 400:
+                raise CoincodexAPIBadRequestException(response)
+            case 402:
+                raise CoincodexAPIPaymentRequiredException(response)
+            case 403:
+                raise CoincodexAPIForbiddenException(response)
+            case 404:
+                raise CoincodexAPINotFoundException(response)
+            case 429:
+                raise CoincodexAPITooManyRequestsException(response)
+            case 500:
+                raise CoincodexAPIInternalServerErrorException(response)
+            case response if not str(response.status_code).startswith("2"):
+                raise CoincodexAPIException(response)
+
         try:
             return response.json()
         except ValueError:

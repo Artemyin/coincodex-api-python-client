@@ -1,6 +1,6 @@
 """examples for from pprint import pprint"""
 from pprint import pprint
-from client import Client
+from coincodex.client import Client
 
 
 client = Client()
